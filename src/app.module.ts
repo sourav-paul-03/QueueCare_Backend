@@ -8,6 +8,7 @@ import { UsersModule } from './modules/users/users.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { ClinicsModule } from './modules/clinics/clinics.module';
 import { SearchModule } from './modules/search/search.module';
+import { SchedulesModule } from './modules/schedules/schedules.module';
 import * as path from 'path';
 
 @Module({
@@ -40,6 +41,7 @@ import * as path from 'path';
     AuditModule,
     ClinicsModule,
     SearchModule,
+    SchedulesModule,
   ],
   controllers: [AppController],
   providers: [],

@@ -132,6 +132,16 @@ async function seed() {
       [doctorId],
     );
 
+    // 9. Doctor Schedules (Sunday to Thursday in BD, days 0, 1, 2, 3, 4)
+    for (let day = 0; day <= 4; day++) {
+      await connection.query(
+        `INSERT INTO doctor_schedules (doctor_clinic_id, day_of_week, start_time, end_time, slot_duration, max_patients, is_active)
+         VALUES (1, ?, '09:00:00', '17:00:00', 15, 30, true)
+         ON DUPLICATE KEY UPDATE start_time = VALUES(start_time), end_time = VALUES(end_time)`,
+        [day],
+      );
+    }
+
     console.log('🎉 [QueueCare Seeder] Core seed data injected successfully!');
     console.log('Default credentials for all seeded demo accounts:');
     console.log('Password: QueueCare123!');
