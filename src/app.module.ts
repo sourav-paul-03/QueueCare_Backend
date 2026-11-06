@@ -11,6 +11,7 @@ import { SearchModule } from './modules/search/search.module';
 import { SchedulesModule } from './modules/schedules/schedules.module';
 import { AppointmentsModule } from './modules/appointments/appointments.module';
 import { QueueModule } from './modules/queue/queue.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 import * as path from 'path';
 
 @Module({
@@ -46,6 +47,7 @@ import * as path from 'path';
     SchedulesModule,
     AppointmentsModule,
     QueueModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [],
