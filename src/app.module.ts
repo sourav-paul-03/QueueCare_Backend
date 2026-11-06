@@ -14,6 +14,7 @@ import { QueueModule } from './modules/queue/queue.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
+import { WaitTimeModule } from './modules/wait-time/wait-time.module';
 import * as path from 'path';
 
 @Module({
@@ -52,6 +53,7 @@ import * as path from 'path';
     NotificationsModule,
     ReviewsModule,
     AnalyticsModule,
+    WaitTimeModule,
   ],
   controllers: [AppController],
   providers: [],
