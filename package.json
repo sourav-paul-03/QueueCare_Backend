@@ -6,6 +6,13 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
+    "prestart": "node scripts/ensure-mysql.js",
+    "prestart:dev": "node scripts/ensure-mysql.js",
+    "prestart:prod": "node scripts/ensure-mysql.js",
+    "preseed": "node scripts/ensure-mysql.js",
+    "presimulate": "node scripts/ensure-mysql.js",
+    "pretest": "node scripts/ensure-mysql.js",
+    "db:start": "node scripts/ensure-mysql.js",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
