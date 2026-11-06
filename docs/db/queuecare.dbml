@@ -1,0 +1,335 @@
+// QueueCare DBML Schema Contract
+// Source of truth for migrations and entities
+
+Table users {
+  id bigint [pk, increment]
+  phone varchar(20) [unique]
+  email varchar(255) [unique]
+  password_hash varchar(255)
+  full_name varchar(100) [not null]
+  role varchar(20) [not null, default: 'PATIENT']
+  is_active boolean [not null, default: true]
+  created_at datetime(3) [not null, default: `CURRENT_TIMESTAMP(3)`]
+  updated_at datetime(3) [not null, default: `CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)`]
+}
+
+Table patients {
+  id bigint [pk, increment]
+  user_id bigint [unique, not null]
+  dob date
+  gender varchar(10)
+  blood_group varchar(5)
+  emergency_contact varchar(20)
+  address text
+  created_at datetime(3) [not null, default: `CURRENT_TIMESTAMP(3)`]
+  updated_at datetime(3) [not null, default: `CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)`]
+}
+
+Table doctors {
+  id bigint [pk, increment]
+  user_id bigint [unique, not null]
+  license_number varchar(50) [unique, not null]
+  bio text
+  experience_years int [default: 0]
+  consultation_fee decimal(10,2) [not null, default: 0.00]
+  created_at datetime(3) [not null, default: `CURRENT_TIMESTAMP(3)`]
+  updated_at datetime(3) [not null, default: `CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)`]
+}
+
+Table specialties {
+  id bigint [pk, increment]
+  name varchar(100) [unique, not null]
+  description text
+  created_at datetime(3) [not null, default: `CURRENT_TIMESTAMP(3)`]
+}
+
+Table doctor_specialties {
+  doctor_id bigint [not null]
+  specialty_id bigint [not null]
+  is_primary boolean [not null, default: false]
+  indexes {
+    (doctor_id, specialty_id) [pk]
+  }
+}
+
+Table otp_codes {
+  id bigint [pk, increment]
+  identifier varchar(255) [not null]
+  code_hash varchar(255) [not null]
+  attempts int [not null, default: 0]
+  expires_at datetime(3) [not null]
+  consumed_at datetime(3)
+  created_at datetime(3) [not null, default: `CURRENT_TIMESTAMP(3)`]
+}
+
+Table refresh_tokens {
+  id bigint [pk, increment]
+  user_id bigint [not null]
+  token_hash varchar(255) [not null, unique]
+  revoked boolean [not null, default: false]
+  expires_at datetime(3) [not null]
+  created_at datetime(3) [not null, default: `CURRENT_TIMESTAMP(3)`]
+}
+
+Table clinics {
+  id bigint [pk, increment]
+  name varchar(255) [not null]
+  address text [not null]
+  city varchar(100) [not null]
+  latitude decimal(10,8)
+  longitude decimal(11,8)
+  timezone varchar(50) [not null, default: 'Asia/Dhaka']
+  phone varchar(30)
+  email varchar(255)
+  is_active boolean [not null, default: true]
+  created_at datetime(3) [not null, default: `CURRENT_TIMESTAMP(3)`]
+  updated_at datetime(3) [not null, default: `CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)`]
+}
+
+Table clinic_memberships {
+  id bigint [pk, increment]
+  clinic_id bigint [not null]
+  user_id bigint [not null]
+  role varchar(30) [not null]
+  is_active boolean [not null, default: true]
+  created_at datetime(3) [not null, default: `CURRENT_TIMESTAMP(3)`]
+  indexes {
+    (clinic_id, user_id) [unique]
+  }
+}
+
+Table doctor_clinics {
+  id bigint [pk, increment]
+  doctor_id bigint [not null]
+  clinic_id bigint [not null]
+  consultation_fee decimal(10,2) [not null, default: 0.00]
+  token_prefix varchar(10) [default: 'A']
+  room_number varchar(50)
+  is_active boolean [not null, default: true]
+  created_at datetime(3) [not null, default: `CURRENT_TIMESTAMP(3)`]
+  updated_at datetime(3) [not null, default: `CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)`]
+  indexes {
+    (doctor_id, clinic_id) [unique]
+  }
+}
+
+Table clinic_holidays {
+  id bigint [pk, increment]
+  clinic_id bigint [not null]
+  holiday_date date [not null]
+  reason varchar(255)
+  created_at datetime(3) [not null, default: `CURRENT_TIMESTAMP(3)`]
+  indexes {
+    (clinic_id, holiday_date) [unique]
+  }
+}
+
+Table audit_logs {
+  id bigint [pk, increment]
+  user_id bigint
+  clinic_id bigint
+  action varchar(100) [not null]
+  entity_type varchar(50) [not null]
+  entity_id varchar(50)
+  ip_address varchar(45)
+  metadata json
+  created_at datetime(3) [not null, default: `CURRENT_TIMESTAMP(3)`]
+}
+
+Table doctor_schedules {
+  id bigint [pk, increment]
+  doctor_clinic_id bigint [not null]
+  day_of_week smallint [not null]
+  start_time time [not null]
+  end_time time [not null]
+  slot_duration int [not null, default: 15]
+  max_patients int [not null, default: 30]
+  is_active boolean [not null, default: true]
+  created_at datetime(3) [not null, default: `CURRENT_TIMESTAMP(3)`]
+}
+
+Table schedule_breaks {
+  id bigint [pk, increment]
+  doctor_schedule_id bigint [not null]
+  start_time time [not null]
+  end_time time [not null]
+  description varchar(100)
+}
+
+Table schedule_exceptions {
+  id bigint [pk, increment]
+  doctor_clinic_id bigint [not null]
+  exception_date date [not null]
+  start_time time
+  end_time time
+  is_available boolean [not null, default: false]
+  reason varchar(255)
+}
+
+Table appointments {
+  id bigint [pk, increment]
+  doctor_clinic_id bigint [not null]
+  patient_id bigint [not null]
+  booked_by_user_id bigint [not null]
+  start_at datetime(3) [not null]
+  end_at datetime(3) [not null]
+  status varchar(30) [not null, default: 'PENDING']
+  idempotency_key varchar(100) [unique]
+  slot_lock tinyint
+  notes text
+  created_at datetime(3) [not null, default: `CURRENT_TIMESTAMP(3)`]
+  updated_at datetime(3) [not null, default: `CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)`]
+  indexes {
+    (doctor_clinic_id, start_at, slot_lock) [unique, name: 'uq_active_slot']
+  }
+}
+
+Table appointment_status_history {
+  id bigint [pk, increment]
+  appointment_id bigint [not null]
+  from_status varchar(30)
+  to_status varchar(30) [not null]
+  changed_by_user_id bigint
+  reason varchar(255)
+  created_at datetime(3) [not null, default: `CURRENT_TIMESTAMP(3)`]
+}
+
+Table reviews {
+  id bigint [pk, increment]
+  appointment_id bigint [unique, not null]
+  rating smallint [not null]
+  comment text
+  created_at datetime(3) [not null, default: `CURRENT_TIMESTAMP(3)`]
+}
+
+Table queue_sessions {
+  id bigint [pk, increment]
+  doctor_clinic_id bigint [not null]
+  queue_date date [not null]
+  status varchar(20) [not null, default: 'OPEN']
+  last_token_number int [not null, default: 0]
+  current_token_id bigint
+  version int [not null, default: 1]
+  created_at datetime(3) [not null, default: `CURRENT_TIMESTAMP(3)`]
+  updated_at datetime(3) [not null, default: `CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)`]
+  indexes {
+    (doctor_clinic_id, queue_date) [unique]
+  }
+}
+
+Table queue_tokens {
+  id bigint [pk, increment]
+  queue_session_id bigint [not null]
+  appointment_id bigint
+  token_number int [not null]
+  token_prefix varchar(10) [default: 'A']
+  priority int [not null, default: 0]
+  effective_time datetime(3)
+  status varchar(30) [not null, default: 'BOOKED']
+  is_walk_in boolean [not null, default: false]
+  checked_in_at datetime(3)
+  called_at datetime(3)
+  started_at datetime(3)
+  completed_at datetime(3)
+  created_at datetime(3) [not null, default: `CURRENT_TIMESTAMP(3)`]
+  updated_at datetime(3) [not null, default: `CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)`]
+  indexes {
+    (queue_session_id, token_number) [unique]
+  }
+}
+
+Table queue_events {
+  id bigint [pk, increment]
+  queue_token_id bigint [not null]
+  from_status varchar(30)
+  to_status varchar(30) [not null]
+  event_type varchar(30) [not null]
+  created_at datetime(3) [not null, default: `CURRENT_TIMESTAMP(3)`]
+}
+
+Table wait_estimate_logs {
+  id bigint [pk, increment]
+  queue_token_id bigint [not null]
+  estimated_wait_minutes int [not null]
+  actual_wait_minutes int
+  model_type varchar(20) [not null, default: 'HEURISTIC']
+  created_at datetime(3) [not null, default: `CURRENT_TIMESTAMP(3)`]
+}
+
+Table notifications {
+  id bigint [pk, increment]
+  user_id bigint [not null]
+  title varchar(255) [not null]
+  body text [not null]
+  type varchar(50) [not null]
+  channel varchar(20) [not null, default: 'IN_APP']
+  is_read boolean [not null, default: false]
+  dedupe_key varchar(100) [unique]
+  metadata json
+  created_at datetime(3) [not null, default: `CURRENT_TIMESTAMP(3)`]
+}
+
+Table device_tokens {
+  id bigint [pk, increment]
+  user_id bigint [not null]
+  device_token varchar(255) [unique, not null]
+  platform varchar(20) [not null]
+  updated_at datetime(3) [not null, default: `CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)`]
+}
+
+Table daily_doctor_stats {
+  id bigint [pk, increment]
+  doctor_clinic_id bigint [not null]
+  stat_date date [not null]
+  total_tokens int [not null, default: 0]
+  completed_count int [not null, default: 0]
+  cancelled_count int [not null, default: 0]
+  no_show_count int [not null, default: 0]
+  avg_wait_minutes decimal(5,2) [default: 0.00]
+  avg_consult_minutes decimal(5,2) [default: 0.00]
+  created_at datetime(3) [not null, default: `CURRENT_TIMESTAMP(3)`]
+  indexes {
+    (doctor_clinic_id, stat_date) [unique]
+  }
+}
+
+Table hourly_load_stats {
+  id bigint [pk, increment]
+  doctor_clinic_id bigint [not null]
+  stat_date date [not null]
+  hour_of_day smallint [not null]
+  check_in_count int [not null, default: 0]
+  called_count int [not null, default: 0]
+  created_at datetime(3) [not null, default: `CURRENT_TIMESTAMP(3)`]
+  indexes {
+    (doctor_clinic_id, stat_date, hour_of_day) [unique]
+  }
+}
+
+Ref: patients.user_id > users.id [delete: restrict]
+Ref: doctors.user_id > users.id [delete: restrict]
+Ref: doctor_specialties.doctor_id > doctors.id [delete: restrict]
+Ref: doctor_specialties.specialty_id > specialties.id [delete: restrict]
+Ref: refresh_tokens.user_id > users.id [delete: restrict]
+Ref: clinic_memberships.clinic_id > clinics.id [delete: restrict]
+Ref: clinic_memberships.user_id > users.id [delete: restrict]
+Ref: doctor_clinics.doctor_id > doctors.id [delete: restrict]
+Ref: doctor_clinics.clinic_id > clinics.id [delete: restrict]
+Ref: clinic_holidays.clinic_id > clinics.id [delete: restrict]
+Ref: doctor_schedules.doctor_clinic_id > doctor_clinics.id [delete: restrict]
+Ref: schedule_breaks.doctor_schedule_id > doctor_schedules.id [delete: restrict]
+Ref: schedule_exceptions.doctor_clinic_id > doctor_clinics.id [delete: restrict]
+Ref: appointments.doctor_clinic_id > doctor_clinics.id [delete: restrict]
+Ref: appointments.patient_id > patients.id [delete: restrict]
+Ref: appointments.booked_by_user_id > users.id [delete: restrict]
+Ref: appointment_status_history.appointment_id > appointments.id [delete: restrict]
+Ref: reviews.appointment_id > appointments.id [delete: restrict]
+Ref: queue_sessions.doctor_clinic_id > doctor_clinics.id [delete: restrict]
+Ref: queue_tokens.queue_session_id > queue_sessions.id [delete: restrict]
+Ref: queue_tokens.appointment_id > appointments.id [delete: restrict]
+Ref: queue_events.queue_token_id > queue_tokens.id [delete: restrict]
+Ref: wait_estimate_logs.queue_token_id > queue_tokens.id [delete: restrict]
+Ref: notifications.user_id > users.id [delete: restrict]
+Ref: device_tokens.user_id > users.id [delete: restrict]
+Ref: daily_doctor_stats.doctor_clinic_id > doctor_clinics.id [delete: restrict]
+Ref: hourly_load_stats.doctor_clinic_id > doctor_clinics.id [delete: restrict]
