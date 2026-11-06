@@ -5,6 +5,9 @@ import { appConfig, dbConfig, authConfig } from './config/configuration';
 import { AppController } from './app.controller';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
+import { AuditModule } from './modules/audit/audit.module';
+import { ClinicsModule } from './modules/clinics/clinics.module';
+import { SearchModule } from './modules/search/search.module';
 import * as path from 'path';
 
 @Module({
@@ -34,6 +37,9 @@ import * as path from 'path';
     }),
     AuthModule,
     UsersModule,
+    AuditModule,
+    ClinicsModule,
+    SearchModule,
   ],
   controllers: [AppController],
   providers: [],

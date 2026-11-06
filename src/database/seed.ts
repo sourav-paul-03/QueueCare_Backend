@@ -100,6 +100,38 @@ async function seed() {
       [patientUserId],
     );
 
+    // 6. Clinics
+    await connection.query(
+      `INSERT INTO clinics (id, name, address, city, latitude, longitude, timezone, phone, email, is_active)
+       VALUES (1, 'Square Medical Complex', '18/F Bir Uttam Qazi Nuruzzaman Sarak, Panthapath', 'Dhaka', 23.75330000, 90.38710000, 'Asia/Dhaka', '+88028144400', 'care@squarehospital.com', true)
+       ON DUPLICATE KEY UPDATE name = VALUES(name), address = VALUES(address)`,
+    );
+
+    await connection.query(
+      `INSERT INTO clinics (id, name, address, city, latitude, longitude, timezone, phone, email, is_active)
+       VALUES (2, 'Evercare Health Hub', 'Plot 81, Block E, Bashundhara R/A', 'Dhaka', 23.80950000, 90.43120000, 'Asia/Dhaka', '+88028431661', 'info@evercare.com', true)
+       ON DUPLICATE KEY UPDATE name = VALUES(name), address = VALUES(address)`,
+    );
+
+    // 7. Clinic Membership for Clinic Admin
+    const [clinicAdminRows] = await connection.query<any[]>(`SELECT id FROM users WHERE email = 'clinicadmin@queuecare.com'`);
+    if (clinicAdminRows.length > 0) {
+      await connection.query(
+        `INSERT INTO clinic_memberships (clinic_id, user_id, role, is_active)
+         VALUES (1, ?, 'CLINIC_ADMIN', true)
+         ON DUPLICATE KEY UPDATE role = VALUES(role)`,
+        [clinicAdminRows[0].id],
+      );
+    }
+
+    // 8. Doctor Clinic Affiliation
+    await connection.query(
+      `INSERT INTO doctor_clinics (id, doctor_id, clinic_id, consultation_fee, token_prefix, room_number, is_active)
+       VALUES (1, ?, 1, 1200.00, 'A', 'Room 304', true)
+       ON DUPLICATE KEY UPDATE consultation_fee = VALUES(consultation_fee), room_number = VALUES(room_number)`,
+      [doctorId],
+    );
+
     console.log('🎉 [QueueCare Seeder] Core seed data injected successfully!');
     console.log('Default credentials for all seeded demo accounts:');
     console.log('Password: QueueCare123!');

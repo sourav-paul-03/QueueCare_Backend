@@ -9,6 +9,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { User } from './user.entity';
+import { DoctorSpecialty } from './doctor-specialty.entity';
 
 @Entity('doctors')
 export class Doctor {
@@ -33,6 +34,9 @@ export class Doctor {
 
   @Column({ name: 'consultation_fee', type: 'decimal', precision: 10, scale: 2, default: 0.0 })
   consultationFee: number;
+
+  @OneToMany(() => DoctorSpecialty, (ds) => ds.doctor)
+  doctorSpecialties: DoctorSpecialty[];
 
   @CreateDateColumn({ name: 'created_at', type: 'datetime', precision: 3 })
   createdAt: Date;
