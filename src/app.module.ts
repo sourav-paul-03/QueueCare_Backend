@@ -9,6 +9,7 @@ import { AuditModule } from './modules/audit/audit.module';
 import { ClinicsModule } from './modules/clinics/clinics.module';
 import { SearchModule } from './modules/search/search.module';
 import { SchedulesModule } from './modules/schedules/schedules.module';
+import { AppointmentsModule } from './modules/appointments/appointments.module';
 import * as path from 'path';
 
 @Module({
@@ -42,6 +43,7 @@ import * as path from 'path';
     ClinicsModule,
     SearchModule,
     SchedulesModule,
+    AppointmentsModule,
   ],
   controllers: [AppController],
   providers: [],
