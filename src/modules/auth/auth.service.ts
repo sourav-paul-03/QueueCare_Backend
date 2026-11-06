@@ -95,6 +95,7 @@ export class AuthService {
         email: savedUser.email,
         role: savedUser.role,
       },
+      tokens,
       ...tokens,
     };
   }
@@ -130,6 +131,7 @@ export class AuthService {
         email: user.email,
         role: user.role,
       },
+      tokens,
       ...tokens,
     };
   }
@@ -224,6 +226,7 @@ export class AuthService {
         email: user.email,
         role: user.role,
       },
+      tokens,
       ...tokens,
     };
   }
@@ -261,7 +264,11 @@ export class AuthService {
     }
 
     // Issue new pair
-    return this.generateTokens(user);
+    const tokens = await this.generateTokens(user);
+    return {
+      tokens,
+      ...tokens,
+    };
   }
 
   private async generateTokens(user: User) {
