@@ -12,6 +12,8 @@ import { SchedulesModule } from './modules/schedules/schedules.module';
 import { AppointmentsModule } from './modules/appointments/appointments.module';
 import { QueueModule } from './modules/queue/queue.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { ReviewsModule } from './modules/reviews/reviews.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
 import * as path from 'path';
 
 @Module({
@@ -48,6 +50,8 @@ import * as path from 'path';
     AppointmentsModule,
     QueueModule,
     NotificationsModule,
+    ReviewsModule,
+    AnalyticsModule,
   ],
   controllers: [AppController],
   providers: [],
